@@ -13,7 +13,6 @@ pub struct ThreadPool {
 }
 
 type Job = Box<dyn FnOnce() + Send + 'static>;
-type RequestHandler = Box<dyn Send + 'static + FnOnce() -> String>;
 
 impl ThreadPool {
     /// Create a new ThreadPool

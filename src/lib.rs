@@ -1,9 +1,8 @@
 use std::io::prelude::*;
-use std::sync::{Arc, Mutex};
-use std::fs;
+use std::sync::Arc;
 use std::net::{TcpListener, TcpStream};
 use std::str;
-use httparse::{Request};
+use httparse::Request;
 
 mod threadpool;
 use threadpool::ThreadPool;
