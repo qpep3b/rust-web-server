@@ -3,15 +3,21 @@ use std::sync::Arc;
 use std::net::{TcpListener, TcpStream};
 use std::str;
 use httparse::Request;
+use serde::Serialize;
 
 mod threadpool;
 use threadpool::ThreadPool;
 
-pub type RequestHandler = Box<dyn Fn(Request) -> (String, String) + Send + Sync + 'static>;
+pub type RequestHandler = Box<dyn Fn(Request) -> HttpResponse + Send + Sync + 'static>;
 
 pub struct App {
     tcp_listener: TcpListener,
     thread_pool: ThreadPool,
+}
+
+pub enum HttpResponse {
+    HtmlResponse(String),
+    JsonResponse(String),
 }
 
 impl App {
@@ -44,8 +50,12 @@ impl App {
         let mut header = [httparse::EMPTY_HEADER; 16];
     
         let mut request = Request::new(&mut header);
-        let res = request.parse(&buffer).unwrap();
-        let (status_line, content) = connection_handler(request);
+        let _res = request.parse(&buffer).unwrap();
+        let status_line = "HTTP/1.1 200 OK";
+        let content = match connection_handler(request) {
+            HttpResponse::HtmlResponse(content) => content,
+            HttpResponse::JsonResponse(content) => content,
+        };
     
         let response = format!(
             "{}\r\nContent-Length: {}\r\n\r\n{}",
